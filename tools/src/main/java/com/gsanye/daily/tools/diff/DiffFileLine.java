@@ -22,6 +22,7 @@ public class DiffFileLine {
         FileContext fc2 = new FileContext(p2).init();
         fc1.diff(fc2);
         fc2.diff(fc1);
+        fc2.same(fc1);
         logResult(fc1, fc2);
     }
 
@@ -32,6 +33,21 @@ public class DiffFileLine {
         diffSet.removeAll(c2);
         log.info("diff2Collections collection1:{},collection2:{},diffSet:{}", c1.size(), c2.size(), diffSet.size());
         fc1.diffSet = diffSet;
+
+    }
+
+    private static void same2Collections(FileContext fc1, FileContext fc2) {
+        Set<String> c1 = fc1.lineSet;
+        Set<String> sameSet = new HashSet<>();
+        Set<String> c2 = fc2.lineSet;
+        for (String s : c1) {
+            if (c2.contains(s)){
+                sameSet.add(s);
+            }
+        }
+        log.info("same2Collections collection1:{},collection2:{},sameSet:{}", c1.size(), c2.size(), sameSet.size());
+        fc1.sameSet = sameSet;
+        fc2.sameSet = sameSet;
 
     }
 
@@ -71,6 +87,7 @@ public class DiffFileLine {
         log.info("{} 原始数据:{},去重后数量:{},重复数量:{},重复集合:{}", name2, fc2.lines.size(), fc2.lineSet.size(), fc2.repeatSet.size(), JSON.toJSONString(fc2.repeatSet));
         log.info("{}-{} 差集数量:{},差集内容:{}", name1, name2, fc1.diffSet.size(), JSON.toJSONString(fc1.diffSet));
         log.info("{}-{} 差集数量:{},差集内容:{}", name2, name1, fc2.diffSet.size(), JSON.toJSONString(fc2.diffSet));
+        log.info("{}-{} 交集数量:{},交集数量:{}", name2, name1, fc2.sameSet.size(), JSON.toJSONString(fc2.sameSet));
     }
 
     private static class FileContext {
@@ -81,6 +98,7 @@ public class DiffFileLine {
         private Set<String> lineSet;
         private Set<String> repeatSet;
         private Set<String> diffSet;
+        private Set<String> sameSet;
 
         public FileContext(String fileName) {
             this.fileName = fileName;
@@ -94,6 +112,9 @@ public class DiffFileLine {
 
         public void diff(FileContext other) {
             diff2Collections(this, other);
+        }
+        public void same(FileContext other) {
+            same2Collections(this, other);
         }
     }
 
